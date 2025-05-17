@@ -3,7 +3,7 @@ import requests
 from concurrent.futures import ThreadPoolExecutor
 import time
 
-API_URL = "http://127.0.0.1:52063/predict"
+API_URL = "http://127.0.0.1:8000/predict"
 IMAGE_PATH = "test_images/banana.jpg"
 CONCURRENT_USERS = 20
 TOTAL_REQUESTS = 100
