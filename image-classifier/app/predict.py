@@ -4,19 +4,19 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 
 # Load the model once
-model = MobileNetV2(weights="imagenet")
+model = MobileNetV2(weights="imagenet") #load the MobileNetV2 model pre-trained on ImageNet
 
 def predict_image(img_path, top_k=5):
     # Load and preprocess the image
-    img = image.load_img(img_path, target_size=(224, 224))
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
-    x = preprocess_input(x)
+    img = image.load_img(img_path, target_size=(224, 224)) #prepare the input image to be compatible with MobileNetV2.
+    x = image.img_to_array(img) # TensorFlow models work with arrays, not image objects
+    x = np.expand_dims(x, axis=0) #convert it into a batch of one image
+    x = preprocess_input(x)  # ensure that the input matches what the model was trained on
 
     # Predict
     preds = model.predict(x)
-    decoded = decode_predictions(preds, top=top_k)[0]
-
+    decoded = decode_predictions(preds, top=top_k)[0] # translates the raw predictions into human-readable labels
+# create a clean list of dictionaries for each of the top predicted classes.
     results = []
     for class_id, label, confidence in decoded:
         results.append({
@@ -27,7 +27,7 @@ def predict_image(img_path, top_k=5):
 
     best = results[0]
     if best["confidence"] < 0.5:
-        best["warning"] = "Low confidence – prediction might be incorrect."
+        best["warning"] = "Low confidence  prediction might be incorrect."
 
     return {
         "top_prediction": best,
