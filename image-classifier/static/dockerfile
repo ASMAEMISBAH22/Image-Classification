@@ -1,0 +1,10 @@
+FROM nginx:alpine
+
+# Copier le HTML
+COPY index.html /usr/share/nginx/html/index.html
+
+# Copier le fichier CSS
+COPY style.css /usr/share/nginx/html/style.css
+
+# Copier la config nginx personnalisée
+COPY nginx.conf /etc/nginx/nginx.conf

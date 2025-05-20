@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Image Classifier</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    
+<body>
+  <h1>Upload an Image for Classification</h1>
+
+  <form id="upload-form">
+    <input type="file" id="imageInput" accept="image/*" required />
+    <button type="submit">Classify</button>
+  </form>
+
+  <div id="imagePreview"></div>
+
+  <div class="result" id="result" style="display: none;">
+    <div class="prediction" id="top-prediction"></div>
+    <ul id="top-k-list"></ul>
+  </div>
+
+  <script>
+    const form = document.getElementById("upload-form");
+    const imageInput = document.getElementById("imageInput");
+    const resultDiv = document.getElementById("result");
+    const topPrediction = document.getElementById("top-prediction");
+    const topKList = document.getElementById("top-k-list");
+    const imagePreview = document.getElementById("imagePreview");
+
+    imageInput.addEventListener("change", function () {
+      const file = imageInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imagePreview.innerHTML = `<img id="uploaded-image" src="${e.target.result}" alt="Uploaded Image" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const file = imageInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not OK");
+        }
+
+        const data = await response.json();
+
+        const top = data.top_prediction;
+        topPrediction.innerHTML = `Top Prediction: ${top.label} (<span class="confidence">${(top.confidence * 100).toFixed(2)}%</span>)`;
+
+        topKList.innerHTML = "";
+        data.top_k_predictions.forEach(pred => {
+          const li = document.createElement("li");
+          li.textContent = `${pred.label} (${(pred.confidence * 100).toFixed(2)}%)`;
+          topKList.appendChild(li);
+        });
+
+        resultDiv.style.display = "block";
+
+      } catch (error) {
+        console.error("Error:", error);
+        resultDiv.style.display = "none";
+        alert("Error during prediction. Check console.");
+      }
+    });
+  </script>
+</body>
+</html>

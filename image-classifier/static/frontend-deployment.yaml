@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: classification-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: classification-frontend
+  template:
+    metadata:
+      labels:
+        app: classification-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: image-classifier-frontend:latest  # Ton image buildée avec nginx.conf
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: classification-frontend-service
+spec:
+  selector:
+    app: classification-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
